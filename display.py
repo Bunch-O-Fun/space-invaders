@@ -17,10 +17,6 @@ class Display:
 class Player:
 
     def __init__(self,xpos,ypos):
-        global x
-        x = 640
-        global y 
-        y = 890
         self.x = x
         self.y = y
         GREEN = (54,223,42)
@@ -28,34 +24,44 @@ class Player:
         playerimg = pygame.Rect(x,y,30,30)
         pygame.draw.rect(screen,GREEN,playerimg,0) #current player is a square, add graphics later on
 
+    def movement(self,x): # this function actually lets me change the value of x so the blits don't reset the player to the intial position
+        key_press = pygame.key.get_pressed()
+        if key_press[pygame.K_LEFT]:
+            if x >= 85:
+                x -= 15
+        if key_press[pygame.K_RIGHT]:
+            if x <= 1195:
+                x += 15
+        return x
+
     def player_action(self,x,y):
         self.x = x
         self.y = y
         key_press = pygame.key.get_pressed()
-        if key_press[pygame.K_LEFT]:
+        if key_press[pygame.K_LEFT]: #moves player left by 15 pixels
             x -= 15
-        if key_press[pygame.K_RIGHT]:
+        if key_press[pygame.K_RIGHT]: #moves player right by 15 pixels
             x += 15
+        if key_press[pygame.K_SPACE]: #shoots
+            print("space") # this is a placeholder
         playerimg = pygame.Rect(x,y,30,30) #reestablish the rectangle with the next x coordinate
         screen.blit(background,(0,0)) #redraws the background
         pygame.draw.rect(screen,(52,223,42),playerimg,0) #redraws the square with its new position
         pygame.display.flip() #updates the screen with all changes
 
-
 mygame = Display()
-playership = Player(640,890)
-
+x = 640
+y = 890
+playership = Player(x,y)
 running = True
-
 while running:
     pygame.display.flip() #updates the visuals on the screen
     pygame.display.update()
-    pygame.time.delay(10)
+    pygame.time.delay(1)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            playership.player_action(x,y)
-
-
+            x = playership.movement(x) #GETS NEW X VALUE
+            playership.player_action(x,y) #reads what button you press
 
         if event.type == pygame.QUIT:
             pygame.quit()
