@@ -26,24 +26,19 @@ class Player:
 
     def movement(self,x): # this function actually lets me change the value of x so the blits don't reset the player to the intial position
         key_press = pygame.key.get_pressed()
-        if key_press[pygame.K_LEFT]:
+        if key_press[pygame.K_LEFT]: #if left key is pressed, move 15 pixels left
             if x >= 85:
                 x -= 15
-        if key_press[pygame.K_RIGHT]:
+            print("left")
+        if key_press[pygame.K_RIGHT]: #if right key is pressed, move 15 pixels right
             if x <= 1195:
                 x += 15
+            print("right")
         return x
 
     def player_action(self,x,y):
         self.x = x
         self.y = y
-        key_press = pygame.key.get_pressed()
-        if key_press[pygame.K_LEFT]: #moves player left by 15 pixels
-            x -= 15
-        if key_press[pygame.K_RIGHT]: #moves player right by 15 pixels
-            x += 15
-        if key_press[pygame.K_SPACE]: #shoots
-            print("space") # this is a placeholder
         playerimg = pygame.Rect(x,y,30,30) #reestablish the rectangle with the next x coordinate
         screen.blit(background,(0,0)) #redraws the background
         pygame.draw.rect(screen,(52,223,42),playerimg,0) #redraws the square with its new position
@@ -57,12 +52,11 @@ running = True
 while running:
     pygame.display.flip() #updates the visuals on the screen
     pygame.display.update()
-    pygame.time.delay(1)
+    pygame.time.delay(10)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             x = playership.movement(x) #GETS NEW X VALUE
             playership.player_action(x,y) #reads what button you press
-
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False #breaks out of loop and quits the game
