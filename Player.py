@@ -2,7 +2,7 @@ from Bullet import Bullet
 
 class Player:
 
-    __position__ = [0,0] # player keeps track of its location via a 2D array (x,y) 
+    __position__ = [0,0] # player keeps track of its location via a 2 element array (x,y) 
                          # may be unnecessary as player only moves on one axis (x axis)
     __isAlive__ = True # player keeps track of whether or not it's alive via a boolean
 
@@ -15,8 +15,8 @@ class Player:
     def moveRight(self): # increments the player's x coordinate (moves 1 to the right)
         self.__position__[0] = self.__position__[0] + 1
 
-    def shoot(self, x, y, speed): # calls an instance of a Bullet
-        Bullet(x+2, y, speed) # (x+2) assuming that __position__ is the upper left corner of the player's ship, and the player's ship is 3x5
+    def shoot(self, x, y): # calls an instance of a Bullet
+        return Bullet(x+2, y) # (x+2) assuming that __position__ is the upper left corner of the player's ship, and the player's ship is 3x5
 
     def dead(self): # sets the player's __isAlive__ boolean to false, effectively "killing" the player
         self.__isAlive__ = False
