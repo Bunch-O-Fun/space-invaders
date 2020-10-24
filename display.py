@@ -87,7 +87,7 @@ class Alien:
             self.alienX.append(random.randint(0, 800))
             self.alienY.append(random.randint(0, 100))
             self.alienNewX.append(3)
-            self.alienNewY.append(900)
+            self.alienNewY.append(50)
             self.alienImage.append(pygame.image.load('alien.png'))
 
 
