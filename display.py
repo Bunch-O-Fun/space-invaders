@@ -42,18 +42,15 @@ class Bullet:
     def bullet_action(self,x,y):
         self.x = x
         self.y = y
-        self.printB = True
-        for i in range(455):
-            self.y += 1
-            self.bulletRender()
-            time.sleep(0.025)
-            print(self.y)
-        self.printB = False
+        self.bulletRender()
+        self.y -= 1
+        pygame.time.delay(10)
+        print(self.y)
 
-    def bulletRender(self):
+    def bulletRender(self): # this works :)
         global bulletimg
         bulletimg = pygame.Rect(self.x,self.y,5,10)
-        pygame.draw.rect(screen,(54,0,42),bulletimg,0)
+        pygame.draw.rect(screen,(255,0,0),bulletimg,0)
 
 def gameLogic(playership, bullet):
     for event in pygame.event.get():
@@ -67,8 +64,8 @@ def gameLogic(playership, bullet):
             if event.key == pygame.K_SPACE:
                 start_x = playership.getX()
                 start_y = playership.getY()
-                bullet.bullet_action(start_x,start_y)
-        #render(playership, bullet)
+                for i in range(455):
+                    bullet.bullet_action(start_x,start_y-i)
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False #breaks out of loop and quits the game
@@ -77,20 +74,19 @@ def gameLogic(playership, bullet):
 def render(playership, bullet):
     screen.blit(background,(0,0))
     playership.playerRender()
-    #if (bullet.printB == True):
-    #bullet.bulletRender()
+    bullet.bulletRender()
     pygame.display.flip() #updates the visuals on the screen
     pygame.display.update()
 
 mygame = Display()
 x = 640
-y = 190
+y = 890
 playership = Player(x,y)
 bullet = Bullet(playership.x, playership.y)
 global running
 running = True
 while running:
-    gameLogic(playership, bullet)
     render(playership, bullet)
-    pygame.time.delay(10)
+    gameLogic(playership, bullet)
+    pygame.time.delay(1)
 pygame.quit()
