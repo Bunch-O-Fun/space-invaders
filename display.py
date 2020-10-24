@@ -5,6 +5,13 @@ import random
 
 class Display:
 
+    '''
+    Display Constructor
+    Parameters: N/A
+    Returns: N/A
+    Preconditions: N/A
+    Postconditions: creates a valid screen
+    '''
     def __init__ (self):
         pygame.init()
         global screen
@@ -15,6 +22,13 @@ class Display:
         pygame.display.set_caption("Space Invaders!")
         screen.blit(background,(0,0))
 
+
+    '''
+    Parameters: N/A
+    Returns: N/A
+    Preconditions: Aliens must have reached a certain threshold on the screen for this to be called
+    Postconditions: Displays "Game Over" on screen
+    '''
     def gameOver(self):
         font = pygame.font.Font('freesansbold.ttf', 64)
         text = font.render("GAME OVER", True, (255, 255, 255))
@@ -52,6 +66,14 @@ class Player:
 
 
 class Alien:
+
+    '''
+    Alien Constructor
+    Parameters: N/A
+    Returns: N/A
+    Preconditions: N/A
+    Postconditions: creates multiple lists of aliens including their location and image
+    '''
 
     def __init__ (self):
         self.alienX = []
@@ -99,22 +121,26 @@ while running:
             running = False #breaks out of loop and quits the game
             sys.exit()
 
+
     for i in range(5):
 
+        #when aliens reach bottom of screen
         if (alienShip.alienY[i] > 800):
             mygame.gameOver()
             break
 
+        #when aliens reach left part of screen they jump down a few and change directions
         alienShip.alienX[i] += alienShip.alienNewX[i]
         if (alienShip.alienX[i] <= 85):
             alienShip.alienNewX[i] = 3;
             alienShip.alienY[i] += alienShip.alienNewY[i]
 
+        #when aliens reach right part of screen they jump down a few and change directions
         elif (alienShip.alienX[i] >= 1195):
             alienShip.alienNewX[i] = -3;
             alienShip.alienY[i] += alienShip.alienNewY[i]
 
-
+        #displays alien
         screen.blit(alienShip.alienImage[i], (alienShip.alienX[i], alienShip.alienY[i]))
 
 
