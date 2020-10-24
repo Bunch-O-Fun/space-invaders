@@ -1,6 +1,7 @@
 import pygame
 import sys
 import math
+import time
 
 class Display:
 
@@ -17,49 +18,79 @@ class Display:
 class Player:
 
     def __init__(self,xpos,ypos):
-        self.x = x
-        self.y = y
-        GREEN = (54,223,42)
+        self.x = xpos
+        self.y = ypos
+        #current player is a square, add graphics later on
+
+    def playerRender(self):
         global playerimg
-        playerimg = pygame.Rect(x,y,30,30)
-        pygame.draw.rect(screen,GREEN,playerimg,0) #current player is a square, add graphics later on
+        playerimg = pygame.Rect(self.x,self.y,30,30)
+        pygame.draw.rect(screen,(54,223,42),playerimg,0)
 
-    def movement(self,x): # this function actually lets me change the value of x so the blits don't reset the player to the intial position
-        key_press = pygame.key.get_pressed()
-        if key_press[pygame.K_LEFT]: #if left key is pressed, move 15 pixels left
-            if x >= 85:
-                x -= 15
-            print("left")
-        if key_press[pygame.K_RIGHT]: #if right key is pressed, move 15 pixels right
-            if x <= 1195:
-                x += 15
-            print("right")
-        return x
+    def getX(self):
+        return self.x
+    def getY(self):
+        return self.y
 
-    def player_action(self,x,y):
+class Bullet:
+
+    def __init__(self, x, y): # initializer for the bullet, allowing specification of its starting location and its speed
         self.x = x
         self.y = y
-        playerimg = pygame.Rect(x,y,30,30) #reestablish the rectangle with the next x coordinate
-        screen.blit(background,(0,0)) #redraws the background
-        pygame.draw.rect(screen,(52,223,42),playerimg,0) #redraws the square with its new position
-        pygame.display.flip() #updates the screen with all changes
+        self.printB = False
 
-mygame = Display()
-x = 640
-y = 890
-playership = Player(x,y)
-running = True
-while running:
-    pygame.display.flip() #updates the visuals on the screen
-    pygame.display.update()
-    pygame.time.delay(10)
+    def bullet_action(self,x,y):
+        self.x = x
+        self.y = y
+        self.printB = True
+        for i in range(455):
+            self.y += 1
+            self.bulletRender()
+            time.sleep(0.025)
+            print(self.y)
+        self.printB = False
+
+    def bulletRender(self):
+        global bulletimg
+        bulletimg = pygame.Rect(self.x,self.y,5,10)
+        pygame.draw.rect(screen,(54,0,42),bulletimg,0)
+
+def gameLogic(playership, bullet):
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            x = playership.movement(x) #GETS NEW X VALUE
-            playership.player_action(x,y) #reads what button you press
+            if event.key == pygame.K_LEFT:
+                if playership.x >= 85:
+                    playership.x -= 15
+            if event.key == pygame.K_RIGHT:
+                if playership.x <= 1195:
+                    playership.x += 15
+            if event.key == pygame.K_SPACE:
+                start_x = playership.getX()
+                start_y = playership.getY()
+                bullet.bullet_action(start_x,start_y)
+        #render(playership, bullet)
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False #breaks out of loop and quits the game
             sys.exit()
 
+def render(playership, bullet):
+    screen.blit(background,(0,0))
+    playership.playerRender()
+    #if (bullet.printB == True):
+    #bullet.bulletRender()
+    pygame.display.flip() #updates the visuals on the screen
+    pygame.display.update()
+
+mygame = Display()
+x = 640
+y = 190
+playership = Player(x,y)
+bullet = Bullet(playership.x, playership.y)
+global running
+running = True
+while running:
+    gameLogic(playership, bullet)
+    render(playership, bullet)
+    pygame.time.delay(10)
 pygame.quit()
