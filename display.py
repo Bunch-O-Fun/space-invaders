@@ -3,10 +3,14 @@ import sys
 import math
 import time
 
-Screen_Height = 981
-Screen_Width = 1290
-Right_Border = Screen_Width - 85
-Left_Border = 85
+SCREEN_HEIGHT = 981
+SCREEN_WIDTH = 1290
+RIGHT_BORDER = SCREEN_WIDTH - 85
+LEFT_BORDER = 85
+
+ALIEN_SPEED = 10
+BULLET_SPEED = 10
+PLAYER_SPEED = 5 
 
 class Display:
 
@@ -20,7 +24,7 @@ class Display:
     def __init__ (self):
         pygame.init()
         global screen
-        screen = pygame.display.set_mode((Screen_Width, Screen_Height))
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         global background
         background = pygame.image.load('background.png')
         pygame.display.set_caption("Space Invaders!")
@@ -49,8 +53,8 @@ class Player:
         #current player is a square, add graphics later on
     
     def move(self):
-        if (self.x + self.direction * 5 > Left_Border) and (self.x + self.direction * 5 < Right_Border):
-            self.x = self.x + self.direction * 5
+        if (self.x + self.direction * PLAYER_SPEED > LEFT_BORDER) and (self.x + self.direction * PLAYER_SPEED < RIGHT_BORDER):
+            self.x = self.x + self.direction * PLAYER_SPEED
 
     def render(self):
         self.hitbox = pygame.Rect(self.x,self.y,30,30)
@@ -68,10 +72,10 @@ class Alien:
         #current player is a square, add graphics later on
     
     def move(self):
-        if(self.direction != 2):
-            self.x = self.x + self.direction * 3
+        if(abs(self.direction) != 2):
+            self.x = self.x + self.direction * ALIEN_SPEED
         else:
-            self.y += 3
+            self.y += ALIEN_SPEED
 
 
 
@@ -91,7 +95,7 @@ class Bullet:
         self.hitbox = pygame.Rect(self.x,self.y,5,10)
 
     def move(self):
-        self.y -= 10
+        self.y -= BULLET_SPEED
 
     def render(self): # this works :)
         self.hitbox = pygame.Rect(self.x,self.y,5,10)
@@ -121,9 +125,7 @@ def getUserInput(playership, bullets):
                 playership.direction = 0
             
             if event.key == pygame.K_SPACE:
-                start_x = playership.x
-                start_y = playership.y
-                bullets += [Bullet(playership.x, playership.y)]
+                bullets += [Bullet(playership.x + 12, playership.y)]
                         
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -132,81 +134,116 @@ def getUserInput(playership, bullets):
 
 def moveAliens(aliens):
     if(len(aliens) != 0):
-        if(aliens[len(aliens) - 1].x >= Right_Border and aliens[len(aliens) - 1].direction == 1):
+        if(aliens[len(aliens) - 1].x >= RIGHT_BORDER and aliens[len(aliens) - 1].direction == 1):
             for alien in aliens:
                 alien.direction = 2
-        elif(aliens[0].x <= Left_Border and aliens[0].direction == -1):
+        elif(aliens[0].x <= LEFT_BORDER and aliens[0].direction == -1):
             for alien in aliens:
-                alien.direction = 2
-        elif(aliens[len(aliens) - 1].x >= Right_Border and aliens[len(aliens) - 1].direction == 2):
+                alien.direction = -2
+        elif(aliens[0].direction == 2):
             if(aliens[0].y > aliens[0].yold + 40):
                 for alien in aliens:
                     alien.direction = -1
                     alien.yold = alien.y
-        elif(aliens[0].x <= Left_Border and aliens[0].direction == 2):
+        elif(aliens[0].direction == -2):
             if(aliens[0].y > aliens[0].yold + 40):
                 for alien in aliens:
                     alien.direction = 1
                     alien.yold = alien.y
     for alien in aliens:
         alien.move()
+        if(alien.y > SCREEN_HEIGHT):
+            running = False
 
-def checkHit(bullets, aliens): # sees if hitboxes overlap of aliens and bullets, if it does deletes that bullet and alien
-    if(len(aliens) != 0):
-        i = 0
-        while(i < len(aliens)):
-            j = 0
-            while(j < len(bullets)):
-                if(aliens[i].hitbox.colliderect(bullets[j].hitbox)):
-                    aliens.remove(aliens[i])
-                    bullets.remove(bullets[j])
-                    i -= 1
-                    j -= 1
-                    break
-                j += 1
-            i += 1
+def checkHit(bullets, aliens):
+    for alien in aliens:
+        for bullet in bullets:
+            if(alien.hitbox.colliderect(bullet.hitbox)):
+                aliens.remove(alien)
+                bullets.remove(bullet)
 
-#def simpleCheck(bullets, aliens): #doesnt work unforturnately
-#    for alien in aliens:
-#        for bullet in bullets:
-#            if(alien.hitbox.colliderect(bullet.hitbox)):
-#                aliens.remove(aliens)
-#                bullets.remove(bullets)
+def levelUP(): #Goes to next level if player kills all aliens on current level
+    global level, ALIEN_SPEED
+    next_level = True
+    for row_aliens in aliens:
+        if len(row_aliens) != 0:
+            next_level = False
+    
+    if(next_level):
+        level += 1
+        if(level % 3 == 0):
+            ALIEN_SPEED += 2
+        for i in range(level % 3 + 1):
+            for j in range(15):
+                aliens[i] += [Alien(100 + j * 60, 40 + 40 * i, 35, 20)]
+    return level
+
+def checkEnd(aliens):
+    global running
+    for row_aliens in aliens:
+        for alien in row_aliens:
+            if(alien.y > SCREEN_HEIGHT):
+                running = False
 
 def gameLogic(playership, bullets, aliens):
     getUserInput(playership, bullets)
     playership.move() #moves player in direction, self.direction updated in playerInput
     moveBullets(bullets)
-    moveAliens(aliens)
-    checkHit(bullets, aliens)
-    #simpleCheck(bullets, aliens)
+    moveAliens(aliens[0])
+    moveAliens(aliens[1])
+    moveAliens(aliens[2])
+    checkHit(bullets, aliens[0])
+    checkHit(bullets, aliens[1])
+    checkHit(bullets, aliens[2])
+    levelUP()
+    checkEnd(aliens)
+    
+    
     
 def render(playership, bullets, aliens):
     screen.blit(background,(0,0))
     playership.render()
     for bullet in bullets:
         bullet.render()
-    for alien in aliens:
-        alien.render()
-    pygame.display.flip() #updates the visuals on the screen
+    for alien_row in aliens:
+        for alien in alien_row:
+            alien.render()
+     #updates the visuals on the screen
     #pygame.display.update()
+
 
 mygame = Display()
 x = 640
 y = 890
 playership = Player(x,y)
 bullets = []
-aliens = []
-for i in range(6):
-    aliens += [Alien(100 + i * 45, 40, 35, 20)]
-global running
+aliens = [[],[],[]]
+level = 0 
+for i in range(15):
+    aliens[0] += [Alien(100 + i * 60, 40, 35, 20)]
 running = True
 while running:
+    time_start = pygame.time.get_ticks()
+
     render(playership, bullets, aliens)
     gameLogic(playership, bullets, aliens)
-    pygame.time.delay(10)
-pygame.quit()
+    
+    time_end = pygame.time.get_ticks()
+    if(time_end - time_start < 17):
+        pygame.time.delay(17 - (time_end - time_start))
+    pygame.display.flip()
 
+exit_game = False
+mygame.gameOver()
+pygame.display.flip()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            running = False #breaks out of loop and quits the game
+            sys.exit()
+
+ 
 
 
 
