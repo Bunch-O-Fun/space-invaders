@@ -1,16 +1,17 @@
 import pygame
 import sys
 import math
+import pygame.mixer
 import time
 
-SCREEN_HEIGHT = 981                 
-SCREEN_WIDTH = 1290 
+SCREEN_HEIGHT = 981
+SCREEN_WIDTH = 1290
 RIGHT_BORDER = SCREEN_WIDTH - 85        # Border is the maximum a player and alien can go
 LEFT_BORDER = 85                        # left or right on the screen
 
 ALIEN_SPEED = 10                        # Number of pixels moved per frame
 BULLET_SPEED = 10
-PLAYER_SPEED = 5 
+PLAYER_SPEED = 5
 
 class Display:
 
@@ -56,17 +57,17 @@ class Player:
     def __init__(self,xpos,ypos):
         self.x = xpos
         self.y = ypos
-       
+
         self.direction = 0      #Direction player moves, 1 = right, -1 = left, 0 is dont move
         self.hitbox = pygame.Rect(self.x,self.y,30,30)
         #current player is a square, add graphics later on
-    
+
     '''
     move
     Parameters: N/A
     Returns: N/A
     Preconditions: N/A
-    Postconditions: moves player an amount of pixels in a direction 
+    Postconditions: moves player an amount of pixels in a direction
     '''
     def move(self):
         # if statement checks if the player is going outside the border
@@ -84,6 +85,7 @@ class Player:
         # renders players box and saves it's hit box
         self.hitbox = pygame.Rect(self.x,self.y,30,30)
         pygame.draw.rect(screen,(54,223,42),self.hitbox,0)
+
 
 class Alien:
 
@@ -103,7 +105,7 @@ class Alien:
         self.ysize = ysize
         self.hitbox = pygame.Rect(self.x,self.y,self.xsize,self.ysize)
         #current player is a square, add graphics later on
-    
+
     '''
     move
     Parameters: N/A
@@ -143,7 +145,7 @@ class Bullet:
         self.hitbox = pygame.Rect(self.x,self.y,5,10)
 
     '''
-    move 
+    move
     Parameters: N/A
     Returns: N/A
     Preconditions: N/A
@@ -232,17 +234,19 @@ def getUserInput(playership, bullets):
 
             # create a bullet if player presses space
             if event.key == pygame.K_SPACE:
+                pygame.mixer.music.load('lasershoot.wav')
+                pygame.mixer.music.play(0)
                 bullets += [Bullet(playership.x + 12, playership.y)]
-        
+
         # on key released change player direction to stop moving
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 playership.direction = 0
             if event.key == pygame.K_RIGHT:
                 playership.direction = 0
-            
-            
-                        
+
+
+
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False #breaks out of loop and quits the game
@@ -259,6 +263,8 @@ def checkHit(bullets, aliens):
     for alien in aliens:
         for bullet in bullets:
             if(alien.hitbox.colliderect(bullet.hitbox)):
+                pygame.mixer.music.load('invaderkilled.wav')
+                pygame.mixer.music.play(0)
                 aliens.remove(alien)
                 bullets.remove(bullet)
 
@@ -275,7 +281,7 @@ def levelUP(): #Goes to next level if player kills all aliens on current level
     for row_aliens in aliens:
         if len(row_aliens) != 0:
             next_level = False
-    
+
     if(next_level):
         level += 1
         if(level % 3 == 0):
@@ -318,7 +324,7 @@ def gameLogic(playership, bullets, aliens):
     checkHit(bullets, aliens[2])
     levelUP()
     checkEnd(aliens)
-    
+
 '''
 renders 1 frame
 Parameters: N/A
@@ -343,7 +349,7 @@ y = 890
 playership = Player(x,y)
 bullets = []
 aliens = [[],[],[]]
-level = 0 
+level = 0
 for i in range(15):
     aliens[0] += [Alien(100 + i * 60, 40, 35, 20)]
 running = True
@@ -352,7 +358,7 @@ while running:
 
     render(playership, bullets, aliens)
     gameLogic(playership, bullets, aliens)
-    
+
     time_end = pygame.time.get_ticks()
     if(time_end - time_start < 17): # regulates framerate to 60fps
         pygame.time.delay(17 - (time_end - time_start))
