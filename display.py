@@ -84,7 +84,8 @@ class Player:
     def render(self):
         # renders players box and saves it's hit box
         self.hitbox = pygame.Rect(self.x,self.y,30,30)
-        pygame.draw.rect(screen,(54,223,42),self.hitbox,0)
+        playerImg = pygame.image.load('player.png')
+        screen.blit(playerImg, (self.x,self.y))
 
 
 class Alien:
@@ -96,15 +97,14 @@ class Alien:
     Preconditions: N/A
     Postconditions: creates an alien
     '''
-    def __init__(self,xpos,ypos, xsize, ysize):
+    def __init__(self,xpos,ypos):
         self.x = xpos
         self.y = ypos
         self.yold = ypos
         self.direction = 1 # 1 = right, -1 = left, 2 & -2 = down
-        self.xsize = xsize
-        self.ysize = ysize
+        self.xsize = 51
+        self.ysize = 51
         self.hitbox = pygame.Rect(self.x,self.y,self.xsize,self.ysize)
-        #current player is a square, add graphics later on
 
     '''
     move
@@ -129,7 +129,8 @@ class Alien:
     '''
     def render(self):
         self.hitbox = pygame.Rect(self.x,self.y,self.xsize,self.ysize)
-        pygame.draw.rect(screen,(54,223,42),self.hitbox,0)
+        alienImg = pygame.image.load('alien.png')
+        screen.blit(alienImg, (self.x,self.y))
 
 class Bullet:
     '''
@@ -234,8 +235,9 @@ def getUserInput(playership, bullets):
 
             # create a bullet if player presses space
             if event.key == pygame.K_SPACE:
-                pygame.mixer.music.load('lasershoot.wav')
-                pygame.mixer.music.play(0)
+                #pygame.mixer.music.load('lasershoot.wav')
+                #pygame.mixer.music.play(0)
+                pygame.mixer.Channel(1).play(pygame.mixer.Sound('lasershoot.wav'))
                 bullets += [Bullet(playership.x + 12, playership.y)]
 
         # on key released change player direction to stop moving
@@ -263,8 +265,9 @@ def checkHit(bullets, aliens):
     for alien in aliens:
         for bullet in bullets:
             if(alien.hitbox.colliderect(bullet.hitbox)):
-                pygame.mixer.music.load('invaderkilled.wav')
-                pygame.mixer.music.play(0)
+                #pygame.mixer.music.load('invaderkilled.wav')
+                #pygame.mixer.music.play(0)
+                pygame.mixer.Channel(1).play(pygame.mixer.Sound('invaderkilled.wav'))
                 aliens.remove(alien)
                 bullets.remove(bullet)
 
@@ -288,7 +291,7 @@ def levelUP(): #Goes to next level if player kills all aliens on current level
             ALIEN_SPEED += 2
         for i in range(level % 3 + 1):
             for j in range(15):
-                aliens[i] += [Alien(100 + j * 60, 40 + 40 * i, 35, 20)]
+                aliens[i] += [Alien(100 + j * 60, 40 + 40 * i)]
     return level
 
 '''
@@ -346,12 +349,13 @@ def render(playership, bullets, aliens):
 mygame = Display()
 x = 640
 y = 890
+pygame.mixer.Channel(2).play(pygame.mixer.Sound('backgroundmusic.wav'))
 playership = Player(x,y)
 bullets = []
 aliens = [[],[],[]]
 level = 0
 for i in range(15):
-    aliens[0] += [Alien(100 + i * 60, 40, 35, 20)]
+    aliens[0] += [Alien(100 + i * 60, 40)]
 running = True
 while running:
     time_start = pygame.time.get_ticks()
