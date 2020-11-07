@@ -6,6 +6,8 @@ import pygame.mixer
 import time
 import csv
 import pandas as pd
+import math
+
 
 SCREEN_HEIGHT = 981
 SCREEN_WIDTH = 1290
@@ -101,7 +103,7 @@ class Player:
 class Alien:
 
     
-    def __init__(self,xpos,ypos, xsize, ysize):
+    def __init__(self,xpos,ypos):
         '''
         alien constructor
         Parameters: x and y position, as well as the size in pixels of the alien
@@ -256,8 +258,8 @@ def getUserInput(playership, bullets):
             if event.key == pygame.K_SPACE:
                 #pygame.mixer.music.load('lasershoot.wav')
                 #pygame.mixer.music.play(0)
-                pygame.mixer.Channel(1).play(pygame.mixer.Sound('lasershoot.wav'))
-                bullets += [Bullet(playership.x + 12, playership.y)]
+                #pygame.mixer.Channel(1).play(pygame.mixer.Sound('lasershoot.wav'))
+                bullets += [Bullet(playership.x + 22, playership.y)]
 
         # on key released change player direction to stop moving
         if event.type == pygame.KEYUP:
@@ -288,7 +290,7 @@ def checkHit(bullets, aliens):
             if(alien.hitbox.colliderect(bullet.hitbox)):
                 #pygame.mixer.music.load('invaderkilled.wav')
                 #pygame.mixer.music.play(0)
-                pygame.mixer.Channel(1).play(pygame.mixer.Sound('invaderkilled.wav'))
+                #pygame.mixer.Channel(1).play(pygame.mixer.Sound('invaderkilled.wav'))
                 aliens.remove(alien)
                 bullets.remove(bullet)
                 score += 10
@@ -312,13 +314,13 @@ def levelUP(): #Goes to next level if player kills all aliens on current level
     if(next_level):
         level_time_end = pygame.time.get_ticks()
         time = (level_time_end - level_time_start) / 1000
-        score += 500/(time + 10) + 100
+        score += math.floor(500/(time + 10) + 100)
         level += 1
         if(level % 3 == 0):
             ALIEN_SPEED += 2
         for i in range(level % 3 + 1):
             for j in range(15):
-                aliens[i] += [Alien(100 + j * 60, 40 + 40 * i, 35, 20)]
+                aliens[i] += [Alien(100 + j * 60, 60 + 40 * i)]
         level_time_start = pygame.time.get_ticks()
 
 
@@ -382,90 +384,101 @@ def render(playership, bullets, aliens):
 def userInterface():
     global score
     global level
-    myfont = pygame.font.SysFont("Comic Sans MS", 30)
+    myfont = pygame.font.SysFont("Comic Sans MS", 40)
     scoreUI = myfont.render("Score: " + str(score), 1, (255,255,255))
     levelUI = myfont.render("Level: " + str(level), 1, (255,255,255))
-    screen.blit(scoreUI, (100, 100))
-    screen.blit(levelUI, (100, 50))
+    screen.blit(scoreUI, (50, 20))
+    screen.blit(levelUI, (SCREEN_WIDTH - 150, 20))
 
-if __name__ == '__main__':
-    mygame = Display()
+#if __name__ == '__main__':
+mygame = Display()
 
-    score = 0
+score = 0
 
-    x = 640
-    y = 890
-    pygame.mixer.Channel(2).play(pygame.mixer.Sound('backgroundmusic.wav'))
-    playership = Player(x,y)
-    bullets = []
-    aliens = [[],[],[]]
-    level = 0
-    for i in range(15):
-        aliens[0] += [Alien(100 + i * 60, 40)]
-    running = True
-    level_time_start = pygame.time.get_ticks()
-    level_time_end = 0
-    while running:
-        time_start = pygame.time.get_ticks()
+x = 640
+y = 890
+#pygame.mixer.Channel(2).play(pygame.mixer.Sound('backgroundmusic.wav'))
+playership = Player(x,y)
+bullets = []
+aliens = [[],[],[]]
+level = 0
+for i in range(15):
+    aliens[0] += [Alien(100 + i * 60, 60)]
+running = True
+level_time_start = pygame.time.get_ticks()
+level_time_end = 0
+while running:
+    time_start = pygame.time.get_ticks()
 
-        render(playership, bullets, aliens)
-        gameLogic(playership, bullets, aliens)
+    render(playership, bullets, aliens)
+    gameLogic(playership, bullets, aliens)
 
-        time_end = pygame.time.get_ticks()
-        if(time_end - time_start < 17): # regulates framerate to 60fps
-            pygame.time.delay(17 - (time_end - time_start))
-        pygame.display.flip()
-
-    exit_game = False
-    mygame.gameOver()
+    time_end = pygame.time.get_ticks()
+    if(time_end - time_start < 17): # regulates framerate to 60fps
+        pygame.time.delay(17 - (time_end - time_start))
     pygame.display.flip()
-    #df_s = pd.DataFrame([[name, score]], columns = ['Name', 'Score'])
-    #df_hs = pd.concat([df_s, df_hs])
-    #df_hs = df_hs.sort_values(by=["Score", "Name"], ascending=False)
-    #df_hs.to_csv("highscores.csv", index=False)
-    input_box = pygame.Rect(500, 500, 140, 32)
-    active = False
-    text = ''
-    done = False
-    font = pygame.font.Font(None,32)
-    color = pygame.Color('dodgerblue2')
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    active = True
-                else:
-                    active = False
-            color = pygame.Color('lightskyblue3') if active else pygame.Color('dodgerblue2')
-            if event.type == pygame.KEYDOWN:
-                #if event.key == pygame.K_ESCAPE
-                if active:
-                    if event.key == pygame.K_RETURN:
-                        name = text
-                        active = False
-                    if event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                    else:
-                        text += event.unicode
-                elif event.key == pygame.K_q:
+
+exit_game = False
+
+#df_s = pd.DataFrame([[name, score]], columns = ['Name', 'Score'])
+#df_hs = pd.concat([df_s, df_hs])
+#df_hs = df_hs.sort_values(by=["Score", "Name"], ascending=False)
+#df_hs.to_csv("highscores.csv", index=False)
+input_box = pygame.Rect(500, 460, 140, 32)
+active = False
+text = ''
+done = False
+font = pygame.font.Font(None,32)
+color = pygame.Color('dodgerblue2')
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if input_box.collidepoint(event.pos):
+                active = True
+            else:
+                active = False
+        color = pygame.Color('lightskyblue3') if active else pygame.Color('dodgerblue2')
+        if event.type == pygame.KEYDOWN:
+            #if event.key == pygame.K_ESCAPE
+            if active:
+                if event.key == pygame.K_RETURN:
                     name = text
-                    running = False
+                    active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                else:
+                    text += event.unicode
+            elif event.key == pygame.K_q:
+                name = text
+                running = False
 
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                running = False #breaks out of loop and quits the game
-                sys.exit()
-        txt_surface = font.render(text, True, color)
-        width = max(200, txt_surface.get_width() + 10)
-        input_box.w = width
-        screen.blit(txt_surface,(input_box.x + 5, input_box.y + 5))
-        pygame.draw.rect(screen, color, input_box, 2)
-        pygame.display.flip()
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            running = False #breaks out of loop and quits the game
+            sys.exit()
+    
+    txt_surface = font.render(text, True, color)
+    width = max(200, txt_surface.get_width() + 10)
+    input_box.w = width
+    screen.blit(background,(0,0))
+    mygame.gameOver()
+    font = pygame.font.Font(None,50)
+    scoreText = font.render("Score: " + str(score), True, (255,255,255))
+    
+    font = pygame.font.Font(None,32)
+    infoText = font.render("Enter your name: ", True, (255,255,255))
+    quitText = font.render("Press \"Q\" to Quit", True, (255,255,255))
+    screen.blit(scoreText, (400, 325))
+    screen.blit(infoText, (510, 425))
+    screen.blit(quitText, (505, 550))
+    screen.blit(txt_surface,(input_box.x + 5, input_box.y + 5))
+    pygame.draw.rect(screen, color, input_box, 2)
+    pygame.display.flip()
 
-    df_s = pd.DataFrame([[name, score]], columns = ['Name', 'Score'])
-    df_hs = pd.concat([df_s, df_hs])
-    df_hs = df_hs.sort_values(by=["Score", "Name"], ascending=False)
-    df_hs.to_csv("highscores.csv", index=False)
-    pygame.quit()
-    sys.exit()
+df_s = pd.DataFrame([[name, score]], columns = ['Name', 'Score'])
+df_hs = pd.concat([df_s, df_hs])
+df_hs = df_hs.sort_values(by=["Score", "Name"], ascending=False)
+df_hs.to_csv("highscores.csv", index=False)
+pygame.quit()
+sys.exit()
