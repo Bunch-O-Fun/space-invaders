@@ -382,6 +382,13 @@ def render(playership, bullets, aliens):
     #pygame.display.update()
 
 def userInterface():
+    '''
+    Deals with everything the user sees
+    Parameters: N/A
+    Returns: N/A
+    Preconditions: N/A
+    Postconditions: Displays to the user the game display and how they interact with it.
+    '''
     global score
     global level
     myfont = pygame.font.SysFont("Comic Sans MS", 40)
