@@ -62,10 +62,3 @@ for bullet in arrayBullet:
     if(bullet.y != 90):
         passed = False;
 print("Passed Mass Move Bullet Test: " + str(passed))
-
-print("\n*****TESTING GAMEPLAY FEATURES*****")
-aliens1 = [[],[],[]]
-aliens2 = [[],[Alien(0, 0)],[]]
-running = True
-checkEnd(aliens1)
-print(running)
